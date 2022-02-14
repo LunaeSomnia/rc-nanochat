@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 /**
@@ -77,15 +78,31 @@ public class DirectoryConnector {
 
         //// TO!DO preparar el buffer para la respuesta
         byte[] response = new byte[PACKET_MAX_SIZE];
-        packet = new DatagramPacket(response, response.length);
+        DatagramPacket r_packet = new DatagramPacket(response, response.length);
 
         //// TO!DO Establecer el temporizador para el caso en que no haya respuesta
         socket.setSoTimeout(1000);
 
-        //// TO!DO Recibir la respuesta
-        socket.receive(packet);
+        try {
+            socket.receive(r_packet); // Esperamos 1000ms a recibir
 
-        System.out.println("DBG: Bounced message received");
+            //// TO!DO Recibir la respuesta
+            System.out.println("DBG: Bounced message received");
+
+        } catch (IOException e) {
+
+            // Si el timeout se ha excecido: reenviamos el mismo paquete
+
+            System.out.println("DBG: Timeout exceeded. Resending...");
+            socket.send(packet);
+
+            try {
+                socket.receive(r_packet);
+            } catch (IOException i) {
+                System.out.println("DBG: The package wasn't able to be bounced back.");
+            }
+
+        }
 
         // TODO Procesamos la respuesta para devolver la dirección que hay en ella
 

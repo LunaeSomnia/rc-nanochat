@@ -73,6 +73,7 @@ public class DirectoryThread extends Thread {
 
                 // DEBUGGING: Si recivimos el ejemplo (20 unos) se cierra el socket
 
+                // Si recibimos uno de los packetes correctamente, salimos.
                 byte[] datos = pckt.getData();
                 boolean salir = true;
                 for (int i = 0; i < 20; i++) {
