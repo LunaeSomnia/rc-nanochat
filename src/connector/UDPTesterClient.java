@@ -2,7 +2,7 @@ package connector;
 
 import java.io.IOException;
 
-public class UDPTester {
+public class UDPTesterClient {
 
     public static final String SERVER_IP = "localhost";
 

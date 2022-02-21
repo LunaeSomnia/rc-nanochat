@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,63 +65,148 @@ public class DirectoryThread extends Thread {
 
                 //// TO!DO (Solo Boletín 2) Devolver una respuesta idéntica en contenido a la
                 //// solicitud
-                pckt = new DatagramPacket(buf, buf.length, ca);
-                socket.send(pckt);
+                // pckt = new DatagramPacket(buf, buf.length, ca);
+                // socket.send(pckt);
 
-                System.out.println("DBG: Bouncing back the package...");
+                // System.out.println("DBG: Bouncing back the package...");
 
-                // TODO 4) Analizar y procesar la solicitud (llamada a processRequestFromCLient)
+                System.out.println("DBG: Sending info to package source...");
 
-                // DEBUGGING: Si recivimos el ejemplo (20 unos) se cierra el socket
-
-                // Si recibimos uno de los packetes correctamente, salimos.
-                byte[] datos = pckt.getData();
-                boolean salir = true;
-                for (int i = 0; i < 20; i++) {
-                    salir &= datos[i] == 1;
-                }
-
-                if (salir) {
-                    System.out.println("DBG: Received message told us to close... so we did.");
-                    running = false;
-                }
+                //// TO!DO 4) Analizar y procesar la solicitud (llamada a
+                //// processRequestFromCLient)
+                processRequestFromClient(pckt.getData(), ca);
 
             } catch (IOException e) {
+                //// TO!DO 5) Tratar las excepciones que puedan producirse
                 System.err.println("DBG: It doesn't work :sadface:");
             }
 
-            //// TO!DO 5) Tratar las excepciones que puedan producirse
         }
-        // Closes this datagram socket
+
         socket.close();
         System.out.println("DBG: Closing the socket");
     }
 
     // Método para procesar la solicitud enviada por clientAddr
     public void processRequestFromClient(byte[] data, InetSocketAddress clientAddr) throws IOException {
-        // TODO 1) Extraemos el tipo de mensaje recibido
-        // TODO 2) Procesar el caso de que sea un registro y enviar mediante sendOK
-        // TODO 3) Procesar el caso de que sea una consulta
-        // TODO 3.1) Devolver una dirección si existe un servidor (sendServerInfo)
-        // TODO 3.2) Devolver una notificación si no existe un servidor (sendEmpty)
+
+        ByteBuffer bf = ByteBuffer.wrap(data);
+
+        //// TO!DO 1) Extraemos el tipo de mensaje recibido
+        byte type = bf.get();
+
+        int protocol = bf.getInt();
+
+        switch (type) {
+            //// TO!DO 2) Procesar el caso de que sea un registro y enviar mediante sendOK
+            // REGISTER
+            case 2:
+                int port = bf.getInt();
+
+                if (!servers.containsKey(protocol)) {
+
+                    InetSocketAddress storeAddr = new InetSocketAddress(clientAddr.getAddress(), port);
+
+                    servers.put(protocol, storeAddr);
+
+                    System.out.println("DBG: Server registered with protocol '" + protocol + "'");
+
+                    sendOK(clientAddr);
+                } else {
+
+                    System.out.println("DBG: Server with protocol '" + protocol
+                            + "' attempted to register to an already existing protocol.");
+
+                    sendNotOK(clientAddr);
+                }
+
+                break;
+            //// TO!DO 3) Procesar el caso de que sea una consulta
+            // QUERY
+            case 3:
+                if (servers.containsKey(protocol)) {
+                    //// TO!DO 3.1) Devolver una dirección si existe un servidor (sendServerInfo)
+                    sendServerInfo(servers.get(protocol), clientAddr);
+                } else {
+                    //// TO!DO 3.2) Devolver una notificación si no existe un servidor (sendEmpty)
+                    sendEmpty(clientAddr);
+                }
+                break;
+        }
     }
 
     // Método para enviar una respuesta vacía (no hay servidor)
     private void sendEmpty(InetSocketAddress clientAddr) throws IOException {
-        // TODO Construir respuesta
-        // TODO Enviar respuesta
+        //// TO!DO Construir respuesta
+        ByteBuffer bf = ByteBuffer.allocate(9);
+
+        bf.put((byte) 4);
+
+        // Insertamos los 4 bytes de la dirección IPv4 (QUE SON 4)
+        bf.putInt(0);
+
+        bf.putInt(0);
+
+        byte[] msg = bf.array();
+
+        //// TO!DO Enviar respuesta
+
+        DatagramPacket packet = new DatagramPacket(msg, msg.length, clientAddr);
+
+        socket.send(packet);
     }
 
     // Método para enviar la dirección del servidor al cliente
     private void sendServerInfo(InetSocketAddress serverAddress, InetSocketAddress clientAddr) throws IOException {
-        // TODO Obtener la representación binaria de la dirección
-        // TODO Construir respuesta
-        // TODO Enviar respuesta
+        //// TO!DO Obtener la representación binaria de la dirección
+        //// TO!DO Construir respuesta
+
+        ByteBuffer bf = ByteBuffer.allocate(9);
+
+        bf.put((byte) 4);
+
+        // Insertamos los 4 bytes de la dirección IPv4 (QUE SON 4)
+        bf.put(serverAddress.getAddress().getAddress());
+
+        bf.putInt(serverAddress.getPort());
+
+        byte[] msg = bf.array();
+
+        //// TO!DO Enviar respuesta
+
+        DatagramPacket packet = new DatagramPacket(msg, msg.length, clientAddr);
+
+        socket.send(packet);
     }
 
     // Método para enviar la confirmación del registro
     private void sendOK(InetSocketAddress clientAddr) throws IOException {
-        // TODO Construir respuesta
-        // TODO Enviar respuesta
+
+        //// TO!DO Construir respuesta
+        ByteBuffer bf = ByteBuffer.allocate(1);
+
+        bf.put((byte) 0);
+
+        byte[] array = bf.array();
+
+        //// TO!DO Enviar respuesta
+        DatagramPacket packet = new DatagramPacket(array, array.length, clientAddr);
+
+        socket.send(packet);
+    }
+
+    // Método para enviar la denegación del registro
+    private void sendNotOK(InetSocketAddress clientAddr) throws IOException {
+        //// TO!DO Construir respuesta
+        ByteBuffer bf = ByteBuffer.allocate(1);
+
+        bf.put((byte) 1);
+
+        byte[] msg = bf.array();
+
+        //// TO!DO Enviar respuesta
+        DatagramPacket packet = new DatagramPacket(msg, msg.length, clientAddr);
+
+        socket.send(packet);
     }
 }

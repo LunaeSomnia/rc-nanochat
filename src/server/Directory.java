@@ -4,7 +4,7 @@ import java.net.SocketException;
 
 public class Directory {
     public static final int DIRECTORY_PORT = 6868;
-    public static final double DEFAULT_CORRUPTION_PROBABILITY = 0.5;
+    public static final double DEFAULT_CORRUPTION_PROBABILITY = 1.0;
 
     public static void main(String[] args) {
         double datagramCorruptionProbability = DEFAULT_CORRUPTION_PROBABILITY;
