@@ -17,11 +17,12 @@ ID | Nombre de mensaje | Abreviatura | Tamaño en bytes | Secciones del mensaje 
 
 > TODO: Insertar un diagrama con los tipos de mensajes entre entidades (cliente-servidor).
 
-### Client-Directory Automata
+## Autómatas de los procesos
+#### Autómata Cliente-Directorio
 ![Client-Directory automata](./images/client-directory.png "client-directory")
 
-### Server-Directory Automata
+#### Autómata Servidor-Directorio
 ![Server-Directory automata](./images/server-directory.png "server-directory")
 
-### Directory Automata
+#### Autómata Directorio
 ![Directory automata](./images/directory.png "directory")
