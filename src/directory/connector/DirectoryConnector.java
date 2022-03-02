@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
@@ -58,7 +57,7 @@ public class DirectoryConnector {
         DatagramPacket r_packet = new DatagramPacket(response, response.length);
 
         //// TO!DO Establecer el temporizador para el caso en que no haya respuesta
-        socket.setSoTimeout(1000);
+        socket.setSoTimeout(TIMEOUT);
 
         boolean received = false;
         try {
@@ -86,7 +85,7 @@ public class DirectoryConnector {
 
         if (received) {
             //// TO!DO Procesamos la respuesta para devolver la dirección que hay en ella
-            getAddressFromResponse(r_packet);
+            return getAddressFromResponse(r_packet);
         }
 
         return null;
@@ -154,7 +153,7 @@ public class DirectoryConnector {
         //// TO!DO Recibe respuesta
         byte[] response = new byte[PACKET_MAX_SIZE];
         DatagramPacket r_packet = new DatagramPacket(response, response.length);
-        socket.setSoTimeout(1000);
+        socket.setSoTimeout(TIMEOUT);
 
         socket.receive(r_packet);
         //// TO!DO Procesamos la respuesta para ver si se ha podido registrar
