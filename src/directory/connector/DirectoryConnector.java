@@ -1,4 +1,4 @@
-package connector;
+package directory.connector;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

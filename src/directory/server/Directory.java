@@ -1,4 +1,4 @@
-package server;
+package directory.server;
 
 import java.net.SocketException;
 
