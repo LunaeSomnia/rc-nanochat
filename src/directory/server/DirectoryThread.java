@@ -140,12 +140,7 @@ public class DirectoryThread extends Thread {
         //// TO!DO Construir respuesta
         ByteBuffer bf = ByteBuffer.allocate(9);
 
-        bf.put((byte) 4);
-
-        // Insertamos los 4 bytes de la dirección IPv4 (QUE SON 4)
-        bf.putInt(0);
-
-        bf.putInt(0);
+        bf.put((byte) 5);
 
         byte[] msg = bf.array();
 

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>
+	<type>fa</type>
+	<automaton>
+		<!--The list of states.-->
+		<state id="0" name="q1">
+			<x>93.0</x>
+			<y>170.0</y>
+			<label>PRE_REGISTER</label>
+			<initial/>
+		</state>
+		<state id="1" name="q2">
+			<x>231.0</x>
+			<y>275.0</y>
+			<label>AWAIT_REGISTER</label>
+		</state>
+		<state id="2" name="q3">
+			<x>93.0</x>
+			<y>382.0</y>
+			<label>SERVER_OCCUPIED</label>
+		</state>
+		<state id="3" name="q3">
+			<x>441.0</x>
+			<y>170.0</y>
+			<label>REGISTERED</label>
+		</state>
+		<state id="4" name="q4">
+			<x>664.0</x>
+			<y>169.0</y>
+			<label>PROCESS_REGNICK</label>
+		</state>
+		<state id="5" name="q5">
+			<x>663.0</x>
+			<y>341.0</y>
+			<label>CLIENT_REGISTERED</label>
+		</state>
+		<state id="6" name="q6">
+			<x>440.0</x>
+			<y>341.0</y>
+			<label>PROCESS_ROOMLIST</label>
+		</state>
+		<state id="7" name="q7">
+			<x>969.0</x>
+			<y>340.0</y>
+			<label>PROCESS_ENTERROOM</label>
+		</state>
+		<state id="8" name="q8">
+			<x>662.0</x>
+			<y>585.0</y>
+			<label>CLIENT_IN_ROOM</label>
+		</state>
+		<state id="9" name="q9">
+			<x>947.0</x>
+			<y>584.0</y>
+			<label>PROCESS_ROOMINFO</label>
+		</state>
+		<!--The list of transitions.-->
+		<transition>
+			<from>8</from>
+			<to>9</to>
+			<read>rcv(GetRoomInfo)</read>
+		</transition>
+		<transition>
+			<from>7</from>
+			<to>8</to>
+			<read>snd(EnterRoomOk)</read>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>snd(reg_sv)</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>5</to>
+			<read>rcv(ExitRoom)</read>
+		</transition>
+		<transition>
+			<from>5</from>
+			<to>6</to>
+			<read>rcv(GetRoomList)</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>4</to>
+			<read>rcv(RegNick)</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>8</to>
+			<read>rcv(SendRoomMsg)</read>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>0</to>
+			<read>timeout</read>
+		</transition>
+		<transition>
+			<from>5</from>
+			<to>7</to>
+			<read>rcv(EnterRoom)</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>0</to>
+			<read>snd(unreg_sv)</read>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>5</to>
+			<read>snd(NickOk)</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>8</to>
+			<read>snd(ReceiveRoomMsg)</read>
+		</transition>
+		<transition>
+			<from>6</from>
+			<to>5</to>
+			<read>snd(RoomListInfo)</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>3</to>
+			<read>rcv(ok)</read>
+		</transition>
+		<transition>
+			<from>9</from>
+			<to>8</to>
+			<read>snd(RoomInfo)</read>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>3</to>
+			<read>snd(NickDuplicated)</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>rcv(not_ok)</read>
+		</transition>
+		<transition>
+			<from>7</from>
+			<to>5</to>
+			<read>snd(EnterRoomFailed)</read>
+		</transition>
+	</automaton>
+</structure>

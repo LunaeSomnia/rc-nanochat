@@ -113,26 +113,25 @@ public class DirectoryConnector {
 
         byte type = bf.get();
 
-        // type = 4
+        if (type == 4) {
 
-        byte[] addr = new byte[4];
-        for (int i = 0; i < 4; i++) {
-            addr[i] = bf.get();
-        }
+            //// TO!DO Si la respuesta no está vacía, devolver la dirección (extraerla del
+            //// mensaje)
+            byte[] addr = new byte[4];
+            for (int i = 0; i < 4; i++) {
+                addr[i] = bf.get();
+            }
 
-        int port = bf.getInt();
+            int port = bf.getInt();
 
-        //// TO!DO Analizar si la respuesta no contiene dirección (devolver null)
-        if (addr[0] == 0 && addr[1] == 0 && addr[2] == 0 && addr[3] == 0 && port == 0) {
+            System.out.println("DBG: RESPONSE:\n\tType: " + type + "\n\tAddress: " + addr[0] + "." + addr[1] + "."
+                    + addr[2] + "." + addr[3] + "\n\tPort: " + port);
+            return new InetSocketAddress(InetAddress.getByAddress(addr), port);
+        } else { // type = 5
+            // Respuesta vacía
             System.out.println("DBG: Server did not exist.");
-            return null;
         }
-
-        System.out.println("DBG: RESPONSE:\n\tType: " + type + "\n\tAddress: " + addr[0] + "." + addr[1] + "."
-                + addr[2] + "." + addr[3] + "\n\tPort: " + port);
-        //// TO!DO Si la respuesta no está vacía, devolver la dirección (extraerla del
-        //// mensaje)
-        return new InetSocketAddress(InetAddress.getByAddress(addr), port);
+        return null;
 
     }
 
