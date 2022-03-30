@@ -2,13 +2,13 @@ package messageML;
 
 /*
 <message>
-    <opcode>1</opcode>
+    <opcode>7</opcode>
 </message>
 */
 
-public class NCNickOk extends NCMessage {
+public class NCGetRoomList extends NCMessage {
 
-    public NCNickOk(byte opcode) {
+    public NCGetRoomList(byte opcode) {
         this.opcode = opcode;
     }
 
@@ -24,8 +24,8 @@ public class NCNickOk extends NCMessage {
 
     }
 
-    public static NCNickOk readFromString(byte code, String message) {
-        return new NCNickOk(code);
+    public static NCGetRoomList readFromString(byte code, String message) {
+        return new NCGetRoomList(code);
     }
 
 }

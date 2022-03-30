@@ -2,13 +2,16 @@ package messageML;
 
 /*
 <message>
-    <opcode>1</opcode>
+    <opcode>2</opcode>
 </message>
 */
 
-public class NCNickOk extends NCMessage {
+public class NCNickDuplicated extends NCMessage {
 
-    public NCNickOk(byte opcode) {
+    /**
+     * Creamos un mensaje de tipo Room a partir del código de operación y del nombre
+     */
+    public NCNickDuplicated(byte opcode) {
         this.opcode = opcode;
     }
 
@@ -24,8 +27,8 @@ public class NCNickOk extends NCMessage {
 
     }
 
-    public static NCNickOk readFromString(byte code, String message) {
-        return new NCNickOk(code);
+    public static NCNickDuplicated readFromString(byte code, String message) {
+        return new NCNickDuplicated(code);
     }
 
 }

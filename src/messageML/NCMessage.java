@@ -111,13 +111,6 @@ public abstract class NCMessage {
     // Analiza la operación de cada mensaje y usa el método readFromString() de cada
     // subclase para parsear
 
-    /*
-     * 
-     * <msg>holaquetalcompañeros</msg>
-     * 
-     * 
-     */
-
     public static NCMessage readMessageFromSocket(DataInputStream dis) throws IOException {
         Pattern pat = Pattern.compile("<" + MESSAGE_MARK + ">(.*?)</" + MESSAGE_MARK + ">", Pattern.DOTALL);
         Pattern pat1 = Pattern.compile("<" + OPERATION_MARK + ">(.*?)</" + OPERATION_MARK + ">");
@@ -149,40 +142,40 @@ public abstract class NCMessage {
                 return NCRegNick.readFromString(code, message);
             }
             case OP_NICKOK: {
-                return hola;
+                return NCNickOk.readFromString(code, message);
             }
             case OP_NICKDUPLICATED: {
-                return hola;
+                return NCNickDuplicated.readFromString(code, message);
             }
             case OP_ENTERROOM: {
-                return hola;
+                return NCEnterRoom.readFromString(code, message);
             }
             case OP_ENTERROOMOK: {
-                return hola;
+                return NCEnterRoomOk.readFromString(code, message);
             }
             case OP_ENTERROOMFAILED: {
-                return hola;
+                return NCEnterRoomFailed.readFromString(code, message);
             }
             case OP_EXITROOM: {
-                return hola;
+                return NCExitRoom.readFromString(code, message);
             }
             case OP_GETROOMLIST: {
-                return hola;
+                return NCGetRoomList.readFromString(code, message);
             }
             case OP_ROOMLISTINFO: {
-                return hola;
+                return NCRoomListInfo.readFromString(code, message);
             }
             case OP_GETROOMINFO: {
-                return hola;
+                return NCGetRoomInfo.readFromString(code, message);
             }
             case OP_ROOMINFO: {
-                return hola;
+                return NCGetRoomInfo.readFromString(code, message);
             }
             case OP_SENDROOMMSG: {
-                return hola;
+                return NCSendRoomMsg.readFromString(code, message);
             }
             case OP_RECEIVEROOMMSG: {
-                return hola;
+                return NCReceiveRoomMsg.readFromString(code, message);
             }
             // case OP_NICK: {
             // return NCRoomMessage.readFromString(code, message);
@@ -197,6 +190,6 @@ public abstract class NCMessage {
     // TODO Programar el resto de métodos para crear otros tipos de mensajes
 
     public static NCMessage makeRoomMessage(byte code, String room) {
-        return new NCRoomMessage(code, room);
+        return new NCEnterRoom(code, room);
     }
 }

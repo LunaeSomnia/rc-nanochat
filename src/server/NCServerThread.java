@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import messageML.NCEnterRoom;
+import messageML.NCEnterRoomFailed;
+import messageML.NCEnterRoomOk;
 import messageML.NCMessage;
 import server.roomManager.NCRoomManager;
 
@@ -43,16 +46,50 @@ public class NCServerThread extends Thread {
             receiveAndVerifyNickname();
             // Mientras que la conexión esté activa entonces...
             while (true) {
-                // TODO Obtenemos el mensaje que llega y analizamos su código de operación
+                //// TO!DO Obtenemos el mensaje que llega y analizamos su código de operación
                 NCMessage message = NCMessage.readMessageFromSocket(dis);
+
                 switch (message.getOpcode()) {
-                    // TODO 1) si se nos pide la lista de salas se envía llamando a sendRoomList();
-                    // TODO 2) Si se nos pide entrar en la sala entonces obtenemos el RoomManager de
-                    // la sala,
-                    // TODO 2) notificamos al usuario que ha sido aceptado y procesamos mensajes con
-                    // processRoomMessages()
-                    // TODO 2) Si el usuario no es aceptado en la sala entonces se le notifica al
-                    // cliente
+
+                    //// TO!DO 1) si se nos pide la lista de salas se envía llamando a
+                    //// sendRoomList();
+                    case NCMessage.OP_GETROOMLIST:
+                        sendRoomList();
+                        break;
+
+                    //// TO!DO 2) Si se nos pide entrar en la sala entonces obtenemos el RoomManager
+                    //// de
+                    //// la sala,
+                    case NCMessage.OP_ENTERROOM:
+
+                        if (roomManager.registerUser(user, socket)) {
+                            dos.writeUTF(new NCEnterRoomOk(NCMessage.OP_ENTERROOMOK).toEncodedString());
+                            processRoomMessages();
+                        } else {
+                            String reason = null; // To fill
+
+                            if (roomManager.registerUser(user, socket)) {
+                                // TODO 2) notificamos al usuario que ha sido aceptado y procesamos mensajes con
+                                // processRoomMessages()
+
+                                // Notificar
+
+                            } else {
+
+                                //// TO!DO 2) Si el usuario no es aceptado en la sala entonces se le notifica al
+                                //// cliente
+
+                                dos.writeUTF(
+                                        new NCEnterRoomFailed(NCMessage.OP_ENTERROOMFAILED, reason).toEncodedString());
+                            }
+
+                            // if (roomManager.usersInRoom() == roomManager)
+                            // ;
+
+                        }
+
+                        break;
+
                 }
             }
         } catch (Exception e) {

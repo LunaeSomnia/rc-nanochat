@@ -60,14 +60,9 @@
 		</state>
 		<!--The list of transitions.-->
 		<transition>
-			<from>10</from>
+			<from>8</from>
 			<to>10</to>
-			<read>snd(SendRoomMsg)</read>
-		</transition>
-		<transition>
-			<from>3</from>
-			<to>5</to>
-			<read>ServerConnected</read>
+			<read>rcv(EnterRoomOk)</read>
 		</transition>
 		<transition>
 			<from>7</from>
@@ -75,69 +70,14 @@
 			<read>snd(GetRoomList)</read>
 		</transition>
 		<transition>
-			<from>6</from>
-			<to>5</to>
-			<read>rcv(NickDuplicated)</read>
-		</transition>
-		<transition>
-			<from>10</from>
-			<to>4</to>
-			<read>snd(GetRoomInfo)</read>
-		</transition>
-		<transition>
-			<from>0</from>
-			<to>1</to>
-			<read>snd(qry_sv)</read>
-		</transition>
-		<transition>
-			<from>2</from>
-			<to>1</to>
-			<read>send(qry_sv)</read>
-		</transition>
-		<transition>
-			<from>10</from>
-			<to>7</to>
-			<read>snd(ExitRoom)</read>
-		</transition>
-		<transition>
-			<from>1</from>
-			<to>3</to>
-			<read>rcv(qry_sv_info)</read>
-		</transition>
-		<transition>
-			<from>8</from>
-			<to>10</to>
-			<read>rcv(EnterRoomOk)</read>
-		</transition>
-		<transition>
-			<from>9</from>
-			<to>7</to>
-			<read>rcv(RoomListInfo)</read>
-		</transition>
-		<transition>
-			<from>5</from>
-			<to>6</to>
-			<read>snd(RegNick)</read>
-		</transition>
-		<transition>
-			<from>3</from>
-			<to>0</to>
-			<read>ServerUnavailable</read>
-		</transition>
-		<transition>
-			<from>10</from>
-			<to>10</to>
-			<read>rcv(ReceiveRoomMsg)</read>
-		</transition>
-		<transition>
-			<from>8</from>
-			<to>7</to>
-			<read>rcv(EnterRoomFailed)</read>
-		</transition>
-		<transition>
 			<from>4</from>
 			<to>10</to>
 			<read>rcv(RoomInfo)</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>10</to>
+			<read>snd(SendRoomMsg)</read>
 		</transition>
 		<transition>
 			<from>7</from>
@@ -145,9 +85,14 @@
 			<read>snd(EnterRoom)</read>
 		</transition>
 		<transition>
-			<from>1</from>
-			<to>2</to>
-			<read>timeout</read>
+			<from>3</from>
+			<to>0</to>
+			<read>ServerUnavailable</read>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>snd(qry_sv)</read>
 		</transition>
 		<transition>
 			<from>1</from>
@@ -155,9 +100,64 @@
 			<read>rcv(qry_sv_info_empty)</read>
 		</transition>
 		<transition>
+			<from>5</from>
+			<to>6</to>
+			<read>snd(RegNick)</read>
+		</transition>
+		<transition>
 			<from>6</from>
 			<to>7</to>
 			<read>rcv(NickOk)</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>7</to>
+			<read>rcv(EnterRoomFailed)</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>timeout</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>4</to>
+			<read>snd(GetRoomInfo)</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>10</to>
+			<read>rcv(ReceiveRoomMsg)</read>
+		</transition>
+		<transition>
+			<from>6</from>
+			<to>5</to>
+			<read>rcv(NickDuplicated)</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>3</to>
+			<read>rcv(qry_sv_info)</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>5</to>
+			<read>ServerConnected</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>7</to>
+			<read>snd(ExitRoom)</read>
+		</transition>
+		<transition>
+			<from>9</from>
+			<to>7</to>
+			<read>rcv(RoomListInfo)</read>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>1</to>
+			<read>send(qry_sv)</read>
 		</transition>
 	</automaton>
 </structure>

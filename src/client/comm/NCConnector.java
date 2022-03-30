@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import messageML.NCMessage;
-import messageML.NCRoomMessage;
+import messageML.NCEnterRoom;
 import server.roomManager.NCRoomDescription;
 
 //Esta clase proporciona la funcionalidad necesaria para intercambiar mensajes entre el cliente y el servidor de NanoChat
@@ -34,7 +34,7 @@ public class NCConnector {
     public boolean registerNickname_UnformattedMessage(String nick) throws IOException {
         // Funcionamiento resumido: SEND(nick) and RCV(NICK_OK) or RCV(NICK_DUPLICATED)
         //// TO!DO Enviamos una cadena con el nick por el flujo de salida
-        NCRoomMessage message = (NCRoomMessage) NCMessage.makeRoomMessage(NCMessage.OP_NICK, nick);
+        NCEnterRoom message = (NCEnterRoom) NCMessage.makeRoomMessage(NCMessage.OP_REGNICK, nick);
         String rawMessage = message.toEncodedString();
         dos.writeUTF(rawMessage);
 
@@ -51,7 +51,7 @@ public class NCConnector {
         // Funcionamiento resumido: SEND(nick) and RCV(NICK_OK) or RCV(NICK_DUPLICATED)
         // Creamos un mensaje de tipo RoomMessage con opcode OP_NICK en el que se
         // inserte el nick
-        NCRoomMessage message = (NCRoomMessage) NCMessage.makeRoomMessage(NCMessage.OP_NICK, nick);
+        NCEnterRoom message = (NCEnterRoom) NCMessage.makeRoomMessage(NCMessage.OP_REGNICK, nick);
         // Obtenemos el mensaje de texto listo para enviar
         String rawMessage = message.toEncodedString();
         // Escribimos el mensaje en el flujo de salida, es decir, provocamos que se

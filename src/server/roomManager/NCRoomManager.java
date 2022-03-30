@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public abstract class NCRoomManager {
-	String roomName;
+	protected String roomName;
 
 	//Método para registrar a un usuario u en una sala (se anota también su socket de comunicación)
 	public abstract boolean registerUser(String u, Socket s);
@@ -13,7 +13,9 @@ public abstract class NCRoomManager {
 	//Método para eliminar un usuario de una sala
 	public abstract void removeUser(String u);
 	//Método para nombrar una sala
-	public abstract void setRoomName(String roomName);
+	public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
 	//Método para devolver la descripción del estado actual de la sala
 	public abstract NCRoomDescription getDescription();
 
