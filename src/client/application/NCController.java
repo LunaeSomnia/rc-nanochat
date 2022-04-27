@@ -2,17 +2,22 @@ package client.application;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import client.comm.NCConnector;
 import client.shell.NCCommands;
 import client.shell.NCShell;
 import directory.connector.DirectoryConnector;
+import server.roomManager.NCRoomDescription;
 
 public class NCController {
     // Diferentes estados del cliente de acuerdo con el autómata
-    private static final byte PRE_CONNECTION = 1;
-    private static final byte PRE_REGISTRATION = 2;
-    private static final byte POST_REGISTRATION = 3;
+    private static final byte PRE_REGISTER = 1;
+    private static final byte AWAIT_REGISTER = 2;
+    private static final byte SERVER_OCCUPIED = 3;
+    private static final byte REGISTERED = 4;
+    private static final byte CLIENT_REGISTERED = 5;
+    private static final byte CLIENT_IN_ROOM = 6;
     // Código de protocolo implementado por este cliente
     //// TO!DO Cambiar para cada grupo
     private static final int PROTOCOL = 10;
@@ -33,7 +38,7 @@ public class NCController {
     // Dirección de internet del servidor de NanoChat
     private InetSocketAddress serverAddress;
     // Estado actual del cliente, de acuerdo con el autómata
-    private byte clientStatus = PRE_CONNECTION;
+    private byte clientStatus = PRE_REGISTER;
 
     // Constructor
     public NCController() {
@@ -57,7 +62,7 @@ public class NCController {
         // autómata
         switch (currentCommand) {
             case NCCommands.COM_NICK:
-                if (clientStatus == PRE_REGISTRATION)
+                if (clientStatus == PRE_REGISTER)
                     nickname = args[0];
                 break;
             case NCCommands.COM_ENTER:
@@ -75,18 +80,27 @@ public class NCController {
     public void processCommand() {
         switch (currentCommand) {
             case NCCommands.COM_NICK:
-                if (clientStatus == PRE_REGISTRATION)
+                if (clientStatus == PRE_REGISTER)
                     registerNickName();
                 else
                     System.out.println("* You have already registered a nickname (" + nickname + ")");
                 break;
             case NCCommands.COM_ROOMLIST:
-                // TODO LLamar a getAndShowRooms() si el estado actual del autómata lo permite
-                // TODO Si no está permitido informar al usuario
+                //// TO!DO LLamar a getAndShowRooms() si el estado actual del autómata lo
+                //// permite
+                if (clientStatus == CLIENT_REGISTERED)
+                    getAndShowRooms();
+                else
+                    //// TO!DO Si no está permitido informar al usuario
+                    System.out.println("* You can't ask for the room list. ");
                 break;
             case NCCommands.COM_ENTER:
-                // TODO LLamar a enterChat() si el estado actual del autómata lo permite
-                // TODO Si no está permitido informar al usuario
+                //// TO!DO LLamar a enterChat() si el estado actual del autómata lo permite
+                if (clientStatus == CLIENT_REGISTERED)
+                    enterChat();
+                else
+                    //// TO!DO Si no está permitido informar al usuario
+                    System.out.println("* You can't enter the room. ");
                 break;
             case NCCommands.COM_QUIT:
                 // Cuando salimos tenemos que cerrar todas las conexiones y sockets abiertos
@@ -101,16 +115,16 @@ public class NCController {
     private void registerNickName() {
         try {
             // Pedimos que se registre el nick (se comprobará si está duplicado)
-            boolean registered = ncConnector.registerNickname_UnformattedMessage(nickname);
-            // TODO: Cambiar la llamada anterior a registerNickname() al usar mensajes
-            // formateados --> Boletín 6
+            boolean registered = ncConnector.registerNickname(nickname);
+            //// TO!DO: Cambiar la llamada anterior a registerNickname() al usar mensajes
+            //// formateados --> Boletín 6
             if (registered) {
                 //// TO!DO Si el registro fue exitoso pasamos al siguiente estado del autómata
-                clientStatus = POST_REGISTRATION;
+                clientStatus = CLIENT_REGISTERED;
                 System.out.println("* Your nickname is now " + nickname);
             } else
                 // En este caso el nick ya existía
-                System.out.println("* The nickname is already registered. Try a different one.");
+                System.out.println("* The nickname is duplicated. Try a different one.");
         } catch (IOException e) {
             System.out.println("* There was an error registering the nickname");
         }
@@ -119,28 +133,53 @@ public class NCController {
     // Método que solicita al servidor de NanoChat la lista de salas e imprime el
     // resultado obtenido
     private void getAndShowRooms() {
-        // TODO Lista que contendrá las descripciones de las salas existentes
-        // TODO Le pedimos al conector que obtenga la lista de salas
-        // ncConnector.getRooms()
-        // TODO Una vez recibidas iteramos sobre la lista para imprimir información de
-        // cada sala
+        try {
+            //// TO!DO Lista que contendrá las descripciones de las salas existentes
+            //// TO!DO Le pedimos al conector que obtenga la lista de salas
+            //// ncConnector.getRooms()
+            List<NCRoomDescription> rooms = ncConnector.getRooms();
+            //// TO!DO Una vez recibidas iteramos sobre la lista para imprimir información
+            //// de
+            //// cada sala
+            for (NCRoomDescription roomDescription : rooms) {
+                System.out.println(roomDescription.toPrintableString());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Método para tramitar la solicitud de acceso del usuario a una sala concreta
     private void enterChat() {
-        // TODO Se solicita al servidor la entrada en la sala correspondiente
-        // ncConnector.enterRoom()
-        // TODO Si la respuesta es un rechazo entonces informamos al usuario y salimos
-        // TODO En caso contrario informamos que estamos dentro y seguimos
-        // TODO Cambiamos el estado del autómata para aceptar nuevos comandos
+        try {
+            //// TO!DO Se solicita al servidor la entrada en la sala correspondiente
+            boolean couldEnter = ncConnector.enterRoom(room);
+
+            //// TO!DO Si la respuesta es un rechazo entonces informamos al usuario y
+            //// salimos
+            if (!couldEnter) {
+                System.out.println("* You couldn't enter the room (full).");
+            } else {
+                //// TO!DO En caso contrario informamos que estamos dentro y seguimos
+                System.out.println("* You entered the room \"" + room + "\".");
+                //// TO!DO Cambiamos el estado del autómata para aceptar nuevos comandos
+                clientStatus = CLIENT_IN_ROOM;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         do {
             // Pasamos a aceptar sólo los comandos que son válidos dentro de una sala
             readRoomCommandFromShell();
             processRoomCommand();
         } while (currentCommand != NCCommands.COM_EXIT);
         System.out.println("* Your are out of the room");
-        // TODO Llegados a este punto el usuario ha querido salir de la sala, cambiamos
-        // el estado del autómata
+        //// TO!DO Llegados a este punto el usuario ha querido salir de la sala,
+        //// cambiamos
+        //// el estado del autómata
+        clientStatus = CLIENT_REGISTERED;
     }
 
     // Método para procesar los comandos específicos de una sala
@@ -169,26 +208,40 @@ public class NCController {
     // Método para solicitar al servidor la información sobre una sala y para
     // mostrarla por pantalla
     private void getAndShowInfo() {
-        // TODO Pedimos al servidor información sobre la sala en concreto
-        // TODO Mostramos por pantalla la información
+        try {
+            //// TO!DO Pedimos al servidor información sobre la sala en concreto
+            NCRoomDescription roomDesc = ncConnector.getRoomInfo(room);
+            //// TO!DO Mostramos por pantalla la información
+            System.out.println(roomDesc.toPrintableString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Método para notificar al servidor que salimos de la sala
     private void exitTheRoom() {
-        // TODO Mandamos al servidor el mensaje de salida
-        // TODO Cambiamos el estado del autómata para indicar que estamos fuera de la
-        // sala
+        try {
+            //// TO!DO Mandamos al servidor el mensaje de salida
+            ncConnector.leaveRoom();
+            //// TO!DO Cambiamos el estado del autómata para indicar que estamos fuera de la
+            //// sala
+            clientStatus = CLIENT_REGISTERED;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Método para enviar un mensaje al chat de la sala
     private void sendChatMessage() {
-        // TODO Mandamos al servidor un mensaje de chat
+        //// TO!DO Mandamos al servidor un mensaje de chat
+        ncConnector.sendChatMessage(chatMessage);
     }
 
     // Método para procesar los mensajes recibidos del servidor mientras que el
     // shell estaba esperando un comando de usuario
     private void processIncommingMessage() {
         // TODO Recibir el mensaje
+        // ncConnector.receiveChatMessage(, chatMessage);
         // TODO En función del tipo de mensaje, actuar en consecuencia
         // TODO (Ejemplo) En el caso de que fuera un mensaje de chat de broadcast
         // mostramos la información de quién envía el mensaje y el mensaje en sí
@@ -250,7 +303,7 @@ public class NCController {
         // el estado del autómata
         if (serverAddress != null) {
             System.out.println("* Connected to " + serverAddress);
-            clientStatus = PRE_REGISTRATION;
+            clientStatus = PRE_REGISTER;
             return true;
         } else
             return false;

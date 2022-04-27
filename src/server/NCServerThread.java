@@ -4,11 +4,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 
-import messageML.NCEnterRoom;
-import messageML.NCEnterRoomFailed;
-import messageML.NCEnterRoomOk;
+import messageML.NCListaSala;
 import messageML.NCMessage;
+import messageML.NCUnParametro;
+import server.roomManager.NCRoomDescription;
 import server.roomManager.NCRoomManager;
 
 /**
@@ -62,34 +63,14 @@ public class NCServerThread extends Thread {
                     //// la sala,
                     case NCMessage.OP_ENTERROOM:
 
-                        if (roomManager.registerUser(user, socket)) {
-                            dos.writeUTF(new NCEnterRoomOk(NCMessage.OP_ENTERROOMOK).toEncodedString());
+                        NCUnParametro msg = (NCUnParametro) message;
+
+                        roomManager = serverManager.enterRoom(user, msg.getParam(), socket);
+
+                        //// TO!DO 2) notificamos al usuario que ha sido aceptado y procesamos mensajes
+                        if (roomManager != null) {
                             processRoomMessages();
-                        } else {
-                            String reason = null; // To fill
-
-                            if (roomManager.registerUser(user, socket)) {
-                                // TODO 2) notificamos al usuario que ha sido aceptado y procesamos mensajes con
-                                // processRoomMessages()
-
-                                // Notificar
-
-                            } else {
-
-                                //// TO!DO 2) Si el usuario no es aceptado en la sala entonces se le notifica al
-                                //// cliente
-
-                                dos.writeUTF(
-                                        new NCEnterRoomFailed(NCMessage.OP_ENTERROOMFAILED, reason).toEncodedString());
-                            }
-
-                            // if (roomManager.usersInRoom() == roomManager)
-                            // ;
-
                         }
-
-                        break;
-
                 }
             }
         } catch (Exception e) {
@@ -138,17 +119,52 @@ public class NCServerThread extends Thread {
 
     // Mandamos al cliente la lista de salas existentes
     private void sendRoomList() {
-        // TODO La lista de salas debe obtenerse a partir del RoomManager y después
-        // enviarse mediante su mensaje correspondiente
+        //// TO!DO La lista de salas debe obtenerse a partir del RoomManager y después
+        //// enviarse mediante su mensaje correspondiente
+        ArrayList<NCRoomDescription> rms = (ArrayList<NCRoomDescription>) serverManager.getRoomList();
+
+        NCListaSala message = new NCListaSala(NCMessage.OP_ROOMLISTINFO, rms);
+        String rawMessage = message.toEncodedString();
+
+        try {
+            dos.writeUTF(rawMessage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void processRoomMessages() {
-        // TODO Comprobamos los mensajes que llegan hasta que el usuario decida salir de
-        // la sala
+    private void processRoomMessages() throws IOException {
+        //// TO!DO Comprobamos los mensajes que llegan hasta que el usuario decida salir
+        //// de
+        //// la sala
         boolean exit = false;
         while (!exit) {
-            // TODO Se recibe el mensaje enviado por el usuario
-            // TODO Se analiza el código de operación del mensaje y se trata en consecuencia
+
+            //// TO!DO Se recibe el mensaje enviado por el usuario
+            NCMessage message = NCMessage.readMessageFromSocket(dis);
+
+            //// TO!DO Se analiza el código de operación del mensaje y se trata en consecuencia
+            switch (message.getOpcode()) {
+                case NCMessage.OP_GETROOMINFO:
+
+                    var info = serverManager.getRoomList();
+                    NCListaSala packet = (NCListaSala) NCMessage.makeRoomList(NCMessage.OP_ROOMINFO, info);
+                    dos.writeUTF(packet.toEncodedString());
+
+                    break;
+
+                case NCMessage.OP_SENDROOMMSG:
+                    NCUnParametro msg = (NCUnParametro) message;
+                    roomManager.broadcastMessage(user, msg.getParam());
+
+                    break;
+
+                case NCMessage.OP_EXITROOM:
+                    serverManager.leaveRoom(user, currentRoom);
+
+                    break;
+            }
+
         }
     }
 }

@@ -13,9 +13,7 @@ public abstract class NCRoomManager {
 	//Método para eliminar un usuario de una sala
 	public abstract void removeUser(String u);
 	//Método para nombrar una sala
-	public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
+	public abstract void setRoomName(String roomName);
 	//Método para devolver la descripción del estado actual de la sala
 	public abstract NCRoomDescription getDescription();
 

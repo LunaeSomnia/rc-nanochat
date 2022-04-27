@@ -6,9 +6,9 @@ package messageML;
 </message>
 */
 
-public class NCNickOk extends NCMessage {
+public class NCControl extends NCMessage {
 
-    public NCNickOk(byte opcode) {
+    public NCControl(byte opcode) {
         this.opcode = opcode;
     }
 
@@ -21,11 +21,10 @@ public class NCNickOk extends NCMessage {
         sb.append("</" + MESSAGE_MARK + ">" + END_LINE);
 
         return sb.toString();
-
     }
 
-    public static NCNickOk readFromString(byte code, String message) {
-        return new NCNickOk(code);
+    public static NCControl readFromString(byte code, String message) {
+        return new NCControl(code);
     }
 
 }

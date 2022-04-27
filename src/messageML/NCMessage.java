@@ -2,10 +2,13 @@ package messageML;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import server.roomManager.NCRoomDescription;
 
 public abstract class NCMessage {
 
@@ -139,47 +142,44 @@ public abstract class NCMessage {
         switch (code) {
             //// TO!DO Parsear el resto de mensajes
             case OP_REGNICK: {
-                return NCRegNick.readFromString(code, message);
+                return NCUnParametro.readFromString(code, message);
             }
             case OP_NICKOK: {
-                return NCNickOk.readFromString(code, message);
+                return NCControl.readFromString(code, message);
             }
             case OP_NICKDUPLICATED: {
-                return NCNickDuplicated.readFromString(code, message);
+                return NCControl.readFromString(code, message);
             }
             case OP_ENTERROOM: {
-                return NCEnterRoom.readFromString(code, message);
+                return NCUnParametro.readFromString(code, message);
             }
             case OP_ENTERROOMOK: {
-                return NCEnterRoomOk.readFromString(code, message);
+                return NCControl.readFromString(code, message);
             }
             case OP_ENTERROOMFAILED: {
-                return NCEnterRoomFailed.readFromString(code, message);
+                return NCUnParametro.readFromString(code, message);
             }
             case OP_EXITROOM: {
-                return NCExitRoom.readFromString(code, message);
+                return NCControl.readFromString(code, message);
             }
             case OP_GETROOMLIST: {
-                return NCGetRoomList.readFromString(code, message);
+                return NCControl.readFromString(code, message);
             }
             case OP_ROOMLISTINFO: {
-                return NCRoomListInfo.readFromString(code, message);
+                return NCListaSala.readFromString(code, message);
             }
             case OP_GETROOMINFO: {
-                return NCGetRoomInfo.readFromString(code, message);
+                return NCControl.readFromString(code, message);
             }
             case OP_ROOMINFO: {
-                return NCGetRoomInfo.readFromString(code, message);
+                return NCListaSala.readFromString(code, message);
             }
             case OP_SENDROOMMSG: {
-                return NCSendRoomMsg.readFromString(code, message);
+                return NCUnParametro.readFromString(code, message);
             }
             case OP_RECEIVEROOMMSG: {
-                return NCReceiveRoomMsg.readFromString(code, message);
+                return NCDosParametros.readFromString(code, message);
             }
-            // case OP_NICK: {
-            // return NCRoomMessage.readFromString(code, message);
-            // }
             default:
                 System.err.println("Unknown message type received:" + code);
                 return null;
@@ -187,9 +187,21 @@ public abstract class NCMessage {
 
     }
 
-    // TODO Programar el resto de métodos para crear otros tipos de mensajes
+    //// TO!DO Programar el resto de métodos para crear otros tipos de mensajes
 
-    public static NCMessage makeRoomMessage(byte code, String room) {
-        return new NCEnterRoom(code, room);
+    public static NCMessage makeControl(byte code) {
+        return new NCControl(code);
+    }
+
+    public static NCMessage makeOneParam(byte code, String param) {
+        return new NCUnParametro(code, param);
+    }
+
+    public static NCMessage makeTwoParam(byte code, String param1, String param2) {
+        return new NCDosParametros(code, param1, param2);
+    }
+
+    public static NCMessage makeRoomList(byte code, List<NCRoomDescription> rooms) {
+        return new NCListaSala(code, rooms);
     }
 }
