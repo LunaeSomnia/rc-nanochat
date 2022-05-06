@@ -13,11 +13,6 @@ import messageML.NCMessage;
 
 public class NCRoom extends NCRoomManager {
 
-    public static final int MAX_ROOM_CAPACITY = 10;
-
-    int capacity;
-    long last_msg_time = -1;
-
     Map<String, Socket> users = new HashMap<String, Socket>();
 
     public NCRoom(int capacity) {
@@ -27,7 +22,7 @@ public class NCRoom extends NCRoomManager {
     @Override
     public boolean registerUser(String u, Socket s) {
 
-        if (!users.containsKey(u) && capacity < MAX_ROOM_CAPACITY) {
+        if (!users.containsKey(u) && users.size() < capacity) {
             users.put(u, s);
             return true;
         }
@@ -39,7 +34,6 @@ public class NCRoom extends NCRoomManager {
     public void broadcastMessage(String u, String message) throws IOException {
 
         last_msg_time = Instant.now().getEpochSecond();
-
         for (String user : users.keySet()) {
             if (user != u) {
                 DataOutputStream dos = new DataOutputStream(users.get(user).getOutputStream());
@@ -69,8 +63,7 @@ public class NCRoom extends NCRoomManager {
         ArrayList<String> user_list = new ArrayList<String>();
         user_list.addAll(users.keySet());
 
-        new NCRoomDescription(this.roomName, user_list, capacity, MAX_ROOM_CAPACITY, last_msg_time);
-        return null;
+        return new NCRoomDescription(this.roomName, user_list, users.size(), capacity, last_msg_time);
     }
 
     @Override

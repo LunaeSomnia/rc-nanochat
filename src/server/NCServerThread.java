@@ -4,8 +4,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.time.Instant;
 import java.util.ArrayList;
 
+import messageML.NCControl;
 import messageML.NCListaSala;
 import messageML.NCMessage;
 import messageML.NCUnParametro;
@@ -48,7 +50,13 @@ public class NCServerThread extends Thread {
             // Mientras que la conexión esté activa entonces...
             while (true) {
                 //// TO!DO Obtenemos el mensaje que llega y analizamos su código de operación
-                NCMessage message = NCMessage.readMessageFromSocket(dis);
+                NCMessage message;
+                try {
+                    message = NCMessage.readMessageFromSocket(dis);
+                } catch (Exception e) {
+                    // El usuario ha salido del cliente y no va a poder encontrar otro mensaje
+                    throw e;
+                }
 
                 switch (message.getOpcode()) {
 
@@ -66,11 +74,14 @@ public class NCServerThread extends Thread {
                         NCUnParametro msg = (NCUnParametro) message;
 
                         roomManager = serverManager.enterRoom(user, msg.getParam(), socket);
+                        roomManager.broadcastMessage(NCServerManager.SYSTEM_NAME, user + " entered the room.");
 
                         //// TO!DO 2) notificamos al usuario que ha sido aceptado y procesamos mensajes
                         if (roomManager != null) {
+                            currentRoom = msg.getParam();
                             processRoomMessages();
                         }
+                        break;
                 }
             }
         } catch (Exception e) {
@@ -100,16 +111,17 @@ public class NCServerThread extends Thread {
         while (!valid) {
             try {
                 //// TO!DO Extraer el nick del mensaje
-                String nick = dis.readUTF();
+                NCUnParametro nick_msg = (NCUnParametro) NCMessage.readMessageFromSocket(dis);
 
                 //// TO!DO Validar el nick utilizando el ServerManager - addUser()
-                valid = serverManager.addUser(nick);
+                valid = serverManager.addUser(nick_msg.getParam());
 
                 //// TO!DO Contestar al cliente con el resultado (éxito o duplicado)
-                if (valid)
-                    dos.writeUTF("NICK_OK");
-                else
-                    dos.writeUTF("NICK_DUPLICATED");
+                if (valid) {
+                    dos.writeUTF(new NCControl(NCMessage.OP_NICKOK).toEncodedString());
+                    user = nick_msg.getParam();
+                } else
+                    dos.writeUTF(new NCControl(NCMessage.OP_NICKDUPLICATED).toEncodedString());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -143,7 +155,8 @@ public class NCServerThread extends Thread {
             //// TO!DO Se recibe el mensaje enviado por el usuario
             NCMessage message = NCMessage.readMessageFromSocket(dis);
 
-            //// TO!DO Se analiza el código de operación del mensaje y se trata en consecuencia
+            //// TO!DO Se analiza el código de operación del mensaje y se trata en
+            //// consecuencia
             switch (message.getOpcode()) {
                 case NCMessage.OP_GETROOMINFO:
 
@@ -161,6 +174,9 @@ public class NCServerThread extends Thread {
 
                 case NCMessage.OP_EXITROOM:
                     serverManager.leaveRoom(user, currentRoom);
+                    roomManager.broadcastMessage(NCServerManager.SYSTEM_NAME, user + " left the room.");
+                    currentRoom = null;
+                    exit = true;
 
                     break;
             }

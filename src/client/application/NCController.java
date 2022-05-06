@@ -8,16 +8,15 @@ import client.comm.NCConnector;
 import client.shell.NCCommands;
 import client.shell.NCShell;
 import directory.connector.DirectoryConnector;
+import messageML.NCDosParametros;
+import server.NCServerManager;
 import server.roomManager.NCRoomDescription;
 
 public class NCController {
     // Diferentes estados del cliente de acuerdo con el autómata
     private static final byte PRE_REGISTER = 1;
-    private static final byte AWAIT_REGISTER = 2;
-    private static final byte SERVER_OCCUPIED = 3;
-    private static final byte REGISTERED = 4;
-    private static final byte CLIENT_REGISTERED = 5;
-    private static final byte CLIENT_IN_ROOM = 6;
+    private static final byte CLIENT_REGISTERED = 2;
+    private static final byte CLIENT_IN_ROOM = 3;
     // Código de protocolo implementado por este cliente
     //// TO!DO Cambiar para cada grupo
     private static final int PROTOCOL = 10;
@@ -154,32 +153,34 @@ public class NCController {
     private void enterChat() {
         try {
             //// TO!DO Se solicita al servidor la entrada en la sala correspondiente
-            boolean couldEnter = ncConnector.enterRoom(room);
+            String couldEnter = ncConnector.enterRoom(room);
 
             //// TO!DO Si la respuesta es un rechazo entonces informamos al usuario y
             //// salimos
-            if (!couldEnter) {
-                System.out.println("* You couldn't enter the room (full).");
+            if (couldEnter != null) {
+                System.out.println("* You couldn't enter the room (" + couldEnter + ").");
             } else {
                 //// TO!DO En caso contrario informamos que estamos dentro y seguimos
                 System.out.println("* You entered the room \"" + room + "\".");
                 //// TO!DO Cambiamos el estado del autómata para aceptar nuevos comandos
                 clientStatus = CLIENT_IN_ROOM;
+
+                do {
+                    // Pasamos a aceptar sólo los comandos que son válidos dentro de una sala
+                    readRoomCommandFromShell();
+                    processRoomCommand();
+                } while (currentCommand != NCCommands.COM_EXIT);
+                System.out.println("* Your are out of the room");
+                //// TO!DO Llegados a este punto el usuario ha querido salir de la sala,
+                //// cambiamos
+                //// el estado del autómata
+                clientStatus = CLIENT_REGISTERED;
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        do {
-            // Pasamos a aceptar sólo los comandos que son válidos dentro de una sala
-            readRoomCommandFromShell();
-            processRoomCommand();
-        } while (currentCommand != NCCommands.COM_EXIT);
-        System.out.println("* Your are out of the room");
-        //// TO!DO Llegados a este punto el usuario ha querido salir de la sala,
-        //// cambiamos
-        //// el estado del autómata
-        clientStatus = CLIENT_REGISTERED;
     }
 
     // Método para procesar los comandos específicos de una sala
@@ -240,11 +241,18 @@ public class NCController {
     // Método para procesar los mensajes recibidos del servidor mientras que el
     // shell estaba esperando un comando de usuario
     private void processIncommingMessage() {
-        // TODO Recibir el mensaje
-        // ncConnector.receiveChatMessage(, chatMessage);
-        // TODO En función del tipo de mensaje, actuar en consecuencia
-        // TODO (Ejemplo) En el caso de que fuera un mensaje de chat de broadcast
-        // mostramos la información de quién envía el mensaje y el mensaje en sí
+        //// TO!DO Recibir el mensaje
+        NCDosParametros chatMessage = ncConnector.receiveChatMessage();
+        //// TO!DO En función del tipo de mensaje, actuar en consecuencia
+        //// TO!DO (Ejemplo) En el caso de que fuera un mensaje de chat de broadcast
+        //// mostramos la información de quién envía el mensaje y el mensaje en sí
+        if (chatMessage.getParam1().equals(NCServerManager.SYSTEM_NAME)) {
+            // Es un mensaje del servidor
+            System.out.println(" ** " + chatMessage.getParam2());
+        } else {
+            // El mensaje es de un usuario
+            System.out.println(chatMessage.getParam1() + ": " + chatMessage.getParam2());
+        }
     }
 
     // MNétodo para leer un comando de la sala

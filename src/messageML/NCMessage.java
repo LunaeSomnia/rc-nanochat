@@ -116,9 +116,14 @@ public abstract class NCMessage {
 
     public static NCMessage readMessageFromSocket(DataInputStream dis) throws IOException {
         Pattern pat = Pattern.compile("<" + MESSAGE_MARK + ">(.*?)</" + MESSAGE_MARK + ">", Pattern.DOTALL);
-        Pattern pat1 = Pattern.compile("<" + OPERATION_MARK + ">(.*?)</" + OPERATION_MARK + ">");
+        Pattern pat1 = Pattern.compile("<" + OPERATION_MARK + ">(.*?)</" + OPERATION_MARK + ">", Pattern.DOTALL);
 
-        String message = dis.readUTF();
+        String message = null;
+        try {
+            message = dis.readUTF();
+        } catch (IOException e) {
+            throw e;
+        }
         Matcher mat = pat.matcher(message);
         if (!mat.find()) {
             System.out.println("Mensaje mal formado:\n" + message);
@@ -189,19 +194,19 @@ public abstract class NCMessage {
 
     //// TO!DO Programar el resto de métodos para crear otros tipos de mensajes
 
-    public static NCMessage makeControl(byte code) {
+    public static NCControl makeControl(byte code) {
         return new NCControl(code);
     }
 
-    public static NCMessage makeOneParam(byte code, String param) {
+    public static NCUnParametro makeOneParam(byte code, String param) {
         return new NCUnParametro(code, param);
     }
 
-    public static NCMessage makeTwoParam(byte code, String param1, String param2) {
+    public static NCDosParametros makeTwoParam(byte code, String param1, String param2) {
         return new NCDosParametros(code, param1, param2);
     }
 
-    public static NCMessage makeRoomList(byte code, List<NCRoomDescription> rooms) {
+    public static NCListaSala makeRoomList(byte code, List<NCRoomDescription> rooms) {
         return new NCListaSala(code, rooms);
     }
 }

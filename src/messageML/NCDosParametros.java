@@ -47,10 +47,10 @@ public class NCDosParametros extends NCMessage {
     }
 
     public static NCDosParametros readFromString(byte code, String message) {
-        Pattern pat_param1 = Pattern.compile(RE_PARAM1);
+        Pattern pat_param1 = Pattern.compile(RE_PARAM1, Pattern.DOTALL);
         Matcher mat_param1 = pat_param1.matcher(message);
 
-        Pattern pat_param2 = Pattern.compile(RE_PARAM2);
+        Pattern pat_param2 = Pattern.compile(RE_PARAM2, Pattern.DOTALL);
         Matcher mat_param2 = pat_param2.matcher(message);
 
         String found_param1 = null;

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import messageML.NCControl;
 import messageML.NCMessage;
 import messageML.NCUnParametro;
 import server.roomManager.NCRoom;
@@ -20,9 +21,11 @@ import server.roomManager.NCRoomManager;
  * Esta clase contiene el estado general del servidor (sin la lógica relacionada
  * con cada sala particular)
  */
-class NCServerManager {
+public class NCServerManager {
 
-    final static int ROOM_SIZE = 10;
+    public static final String SYSTEM_NAME = "cake";
+
+    public final static int ROOM_SIZE = 10;
 
     // Primera habitación del servidor
     final static int INITIAL_ROOM = 0;
@@ -33,8 +36,6 @@ class NCServerManager {
     private Set<String> users = new HashSet<String>();
     // Habitaciones actuales asociadas a sus correspondientes RoomManagers
     private Map<String, NCRoomManager> rooms = new HashMap<String, NCRoomManager>();
-
-    private String last_room;
 
     NCServerManager() {
         nextRoom = INITIAL_ROOM;
@@ -47,8 +48,6 @@ class NCServerManager {
         rm.setRoomName(roomName);
         //// TO!DO Dar soporte para que pueda haber más de una sala en el servidor
         nextRoom++;
-
-        last_room = roomName;
     }
 
     // Devuelve la descripción de las salas existentes
@@ -68,7 +67,7 @@ class NCServerManager {
     // Intenta registrar al usuario en el servidor.
     public synchronized boolean addUser(String user) {
         //// TO!DO Devuelve true si no hay otro usuario con su nombre
-        if (!users.contains(user)) {
+        if (!users.contains(user) && user != NCServerManager.SYSTEM_NAME) {
             users.add(user);
             return true;
         }
@@ -89,19 +88,20 @@ class NCServerManager {
     public synchronized NCRoomManager enterRoom(String u, String room, Socket s) throws IOException {
 
         String error_reason = null;
+        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
         //// TO!DO Verificamos si la sala existe
         if (rooms.containsKey(room)) {
-            if (room == last_room) {
+            NCRoomManager room_manager = rooms.get(room);
+
+            if (room_manager.usersInRoom() == 0) {
                 registerRoomManager(new NCRoom(ROOM_SIZE));
             }
 
             //// TO!DO Si la sala existe y si es aceptado en la sala entonces devolvemos el
             //// RoomManager de la sala
-
-            NCRoomManager room_manager = rooms.get(room);
-
             if (room_manager.registerUser(u, s)) {
+                dos.writeUTF(new NCControl(NCMessage.OP_ENTERROOMOK).toEncodedString());
                 return room_manager;
             } else
                 error_reason = "Room is full";
@@ -111,7 +111,6 @@ class NCServerManager {
             error_reason = "Room does not exist";
         }
 
-        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
         dos.writeUTF(new NCUnParametro(NCMessage.OP_ENTERROOMFAILED, error_reason).toEncodedString());
         return null;
 
@@ -121,11 +120,17 @@ class NCServerManager {
     public synchronized void leaveRoom(String u, String room) {
         //// TO!DO Verificamos si la sala existe
         if (rooms.containsKey(room)) {
+
+            NCRoomManager room_manager = rooms.get(room);
+
             //// TO!DO Si la sala existe sacamos al usuario de la sala
-            rooms.get(room).removeUser(u);
+            room_manager.removeUser(u);
 
             //// TO!DO Decidir qué hacer si la sala se queda vacía
-            rooms.remove(room);
+            if (room_manager.usersInRoom() == 0 && rooms.size() > 1) {
+                rooms.remove(room);
+            }
+
         }
     }
 }

@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import messageML.NCControl;
+import messageML.NCDosParametros;
 import messageML.NCListaSala;
 import messageML.NCMessage;
 import messageML.NCUnParametro;
@@ -53,7 +54,7 @@ public class NCConnector {
         // Funcionamiento resumido: SEND(nick) and RCV(NICK_OK) or RCV(NICK_DUPLICATED)
         // Creamos un mensaje de tipo OneParameter con opcode OP_NICK en el que se
         // inserte el nick
-        NCUnParametro message = (NCUnParametro) NCMessage.makeOneParam(NCMessage.OP_REGNICK, nick);
+        NCUnParametro message = NCMessage.makeOneParam(NCMessage.OP_REGNICK, nick);
         // Obtenemos el mensaje de texto listo para enviar
         String rawMessage = message.toEncodedString();
         // Escribimos el mensaje en el flujo de salida, es decir, provocamos que se
@@ -74,26 +75,36 @@ public class NCConnector {
         // Funcionamiento resumido: SND(GET_ROOMS) and RCV(ROOM_LIST_INFO)
         //// TO!DO completar el método
 
-        NCControl message = (NCControl) NCMessage.makeControl(NCMessage.OP_GETROOMLIST);
-        String rawMessage = message.toEncodedString();
-        dos.writeUTF(rawMessage);
+        NCControl message = NCMessage.makeControl(NCMessage.OP_GETROOMLIST);
+        dos.writeUTF(message.toEncodedString());
 
         NCListaSala response = (NCListaSala) NCMessage.readMessageFromSocket(dis);
         return response.getRooms();
     }
 
     // Método para solicitar la entrada en una sala
-    public boolean enterRoom(String room) throws IOException {
+    public String enterRoom(String room) throws IOException {
         // Funcionamiento resumido: SND(ENTER_ROOM<room>) and RCV(ENTER_ROOM_OK) or
         // RCV(ENTER_ROOM_FAILED)
         //// TO!DO completar el método
 
-        NCUnParametro message = (NCUnParametro) NCMessage.makeOneParam(NCMessage.OP_ENTERROOM, room);
+        NCUnParametro message = NCMessage.makeOneParam(NCMessage.OP_ENTERROOM, room);
         String rawMessage = message.toEncodedString();
         dos.writeUTF(rawMessage);
 
-        NCControl response = (NCControl) NCMessage.readMessageFromSocket(dis);
-        return response.getOpcode() == NCMessage.OP_ENTERROOMOK;
+        NCMessage response = NCMessage.readMessageFromSocket(dis);
+
+        try {
+            // Si es de tipo control, el mensaje es "ENTERROOMOK"
+            NCControl response_c = (NCControl) response;
+            return null;
+
+        } catch (Exception e) {
+            // El mensaje ha sido "ENTERROOMFAILED", con su respectiva razón
+            NCUnParametro response_u = (NCUnParametro) response;
+            return response_u.getParam();
+        }
+
     }
 
     // Método para salir de una sala
@@ -101,7 +112,7 @@ public class NCConnector {
         // Funcionamiento resumido: SND(EXIT_ROOM)
         //// TO!DO completar el método
 
-        NCUnParametro message = (NCUnParametro) NCMessage.makeControl(NCMessage.OP_EXITROOM);
+        NCControl message = NCMessage.makeControl(NCMessage.OP_EXITROOM);
         String rawMessage = message.toEncodedString();
         dos.writeUTF(rawMessage);
     }
@@ -116,11 +127,24 @@ public class NCConnector {
     //// chat a una sala
 
     public void sendChatMessage(String msg) {
-        // TODO
+        try {
+            dos.writeUTF(new NCUnParametro(NCMessage.OP_SENDROOMMSG, msg).toEncodedString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public void receiveChatMessage(String user, String msg) {
-        // TODO
+    public NCDosParametros receiveChatMessage() {
+        try {
+            NCMessage readMesage = NCMessage.readMessageFromSocket(dis);
+            return (NCDosParametros) readMesage;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            return null;
+        }
     }
 
     // Método para pedir la descripción de una sala
@@ -128,7 +152,7 @@ public class NCConnector {
         // Funcionamiento resumido: SND(GET_ROOMINFO) and RCV(ROOMINFO)
         //// TO!DO Construimos el mensaje de solicitud de información de la sala
         //// específica
-        NCUnParametro message = (NCUnParametro) NCMessage.makeOneParam(NCMessage.OP_GETROOMINFO, room);
+        NCUnParametro message = NCMessage.makeOneParam(NCMessage.OP_GETROOMINFO, room);
         String rawMessage = message.toEncodedString();
         dos.writeUTF(rawMessage);
 
@@ -136,7 +160,7 @@ public class NCConnector {
         NCListaSala response = (NCListaSala) NCMessage.readMessageFromSocket(dis);
 
         //// TO!DO Devolvemos la descripción contenida en el mensaje
-        return response.getRooms().get(0);
+        return (NCRoomDescription) response.getRooms().stream().filter(r -> r.roomName.equals(room)).toArray()[0];
     }
 
     // Método para cerrar la comunicación con la sala

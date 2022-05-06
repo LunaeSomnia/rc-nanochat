@@ -39,7 +39,7 @@ public class NCUnParametro extends NCMessage {
     }
 
     public static NCUnParametro readFromString(byte code, String message) {
-        Pattern pat_param = Pattern.compile(RE_PARAM);
+        Pattern pat_param = Pattern.compile(RE_PARAM, Pattern.DOTALL);
         Matcher mat_param = pat_param.matcher(message);
 
         String found_param = null;

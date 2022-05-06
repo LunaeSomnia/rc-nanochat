@@ -23,6 +23,22 @@
             "request": "launch",
             "mainClass": "server.Directory",
             "projectName": "rc-nanochat_d979f5a5",
+        },
+        {
+            "type": "java",
+            "name": "Launch Test Server",
+            "request": "launch",
+            "mainClass": "server.NanoChatServer",
+            "projectName": "rc-nanochat_d979f5a5",
+            "args": "localhost"
+        },
+        {
+            "type": "java",
+            "name": "Launch Test Client",
+            "request": "launch",
+            "mainClass": "client.application.NanoChat",
+            "projectName": "rc-nanochat_d979f5a5",
+            "args": "localhost"
         }
     ]
 }

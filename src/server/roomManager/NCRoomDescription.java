@@ -1,5 +1,6 @@
 package server.roomManager;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -32,8 +33,9 @@ public class NCRoomDescription {
         for (String member : members) {
             sb.append(member + " ");
         }
+
         if (timeLastMessage != 0)
-            sb.append("\tLast message: " + new Date(timeLastMessage).toString());
+            sb.append("\tLast message: " + Date.from(Instant.ofEpochSecond(timeLastMessage)).toString());
         else
             sb.append("\tLast message: not yet");
         return sb.toString();
