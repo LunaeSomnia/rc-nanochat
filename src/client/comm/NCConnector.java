@@ -96,7 +96,7 @@ public class NCConnector {
 
         try {
             // Si es de tipo control, el mensaje es "ENTERROOMOK"
-            NCControl response_c = (NCControl) response;
+            // NCControl response_c = (NCControl) response;
             return null;
 
         } catch (Exception e) {
@@ -161,6 +161,12 @@ public class NCConnector {
 
         //// TO!DO Devolvemos la descripción contenida en el mensaje
         return (NCRoomDescription) response.getRooms().stream().filter(r -> r.roomName.equals(room)).toArray()[0];
+    }
+
+    public void renameRoom(String newRoomName) throws IOException {
+        NCUnParametro message = NCMessage.makeOneParam(NCMessage.OP_RENAMEROOM, newRoomName);
+        String rawMessage = message.toEncodedString();
+        dos.writeUTF(rawMessage);
     }
 
     // Método para cerrar la comunicación con la sala

@@ -13,7 +13,7 @@ public class UDPTesterServer {
             boolean res = dc.registerServerForProtocol(0, 6868);
 
             if (res) {
-                System.out.println("DBG: Server registered succesfully");
+                System.out.println("Server registered succesfully");
             }
 
         } catch (IOException e) {

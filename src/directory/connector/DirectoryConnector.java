@@ -50,8 +50,6 @@ public class DirectoryConnector {
         //// TO!DO Enviar datagrama por el socket
         socket.send(packet);
 
-        System.out.println("DBG: Sending query with protocol '" + protocol + "'");
-
         //// TO!DO preparar el buffer para la respuesta
         byte[] response = new byte[PACKET_MAX_SIZE];
         DatagramPacket r_packet = new DatagramPacket(response, response.length);
@@ -61,24 +59,20 @@ public class DirectoryConnector {
 
         boolean received = false;
         try {
+            //// TO!DO Recibir la respuesta
             socket.receive(r_packet); // Esperamos 1000ms a recibir
             received = true;
-
-            //// TO!DO Recibir la respuesta
-            System.out.println("DBG: Directory response message received");
 
         } catch (IOException e) {
 
             // Si el timeout se ha excecido: reenviamos el mismo paquete
-
-            System.out.println("DBG: Timeout exceeded. Resending...");
             socket.send(packet);
 
             try {
                 socket.receive(r_packet);
                 received = true;
             } catch (IOException i) {
-                System.out.println("DBG: The package wasn't able to be bounced back.");
+                System.out.println("* Timeout exceeded.");
             }
 
         }
@@ -124,12 +118,10 @@ public class DirectoryConnector {
 
             int port = bf.getInt();
 
-            System.out.println("DBG: RESPONSE:\n\tType: " + type + "\n\tAddress: " + addr[0] + "." + addr[1] + "."
-                    + addr[2] + "." + addr[3] + "\n\tPort: " + port);
             return new InetSocketAddress(InetAddress.getByAddress(addr), port);
         } else { // type = 5
             // Respuesta vacía
-            System.out.println("DBG: Server did not exist.");
+            System.out.println(" - Server did not exist.");
         }
         return null;
 

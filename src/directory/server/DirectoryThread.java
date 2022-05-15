@@ -54,23 +54,15 @@ public class DirectoryThread extends Thread {
                 //// TO!DO 2) Extraer quién es el cliente (su dirección)
                 InetSocketAddress ca = (InetSocketAddress) pckt.getSocketAddress();
 
-                System.out.println("DBG: Package received from address '" + ca + "'");
-
                 //// TO!DO 3) Vemos si el mensaje debe ser descartado por la probabilidad de
                 //// descarte
                 if (Math.random() > messageDiscardProbability) {
-                    System.err.println("Directory DISCARDED corrupt request from... ");
+                    System.err.println(" - Directory DISCARDED corrupt request from... ");
                     continue;
                 }
 
                 //// TO!DO (Solo Boletín 2) Devolver una respuesta idéntica en contenido a la
                 //// solicitud
-                // pckt = new DatagramPacket(buf, buf.length, ca);
-                // socket.send(pckt);
-
-                // System.out.println("DBG: Bouncing back the package...");
-
-                System.out.println("DBG: Sending info to package source...");
 
                 //// TO!DO 4) Analizar y procesar la solicitud (llamada a
                 //// processRequestFromCLient)
@@ -78,13 +70,11 @@ public class DirectoryThread extends Thread {
 
             } catch (IOException e) {
                 //// TO!DO 5) Tratar las excepciones que puedan producirse
-                System.err.println("DBG: It doesn't work :sadface:");
             }
 
         }
 
         socket.close();
-        System.out.println("DBG: Closing the socket");
     }
 
     // Método para procesar la solicitud enviada por clientAddr
@@ -109,12 +99,12 @@ public class DirectoryThread extends Thread {
 
                     servers.put(protocol, storeAddr);
 
-                    System.out.println("DBG: Server registered with protocol '" + protocol + "'");
+                    System.out.println(" - Server registered with protocol '" + protocol + "'");
 
                     sendOK(clientAddr);
                 } else {
 
-                    System.out.println("DBG: Server with protocol '" + protocol
+                    System.out.println(" - Server with protocol '" + protocol
                             + "' attempted to register to an already existing protocol.");
 
                     sendNotOK(clientAddr);

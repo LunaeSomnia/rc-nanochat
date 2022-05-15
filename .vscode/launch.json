@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Directory",
+            "request": "launch",
+            "mainClass": "directory.server.Directory",
+            "projectName": "rc-nanochat_d979f5a5"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
@@ -22,7 +29,7 @@
             "name": "Launch Directory",
             "request": "launch",
             "mainClass": "server.Directory",
-            "projectName": "rc-nanochat_d979f5a5",
+            "projectName": "rc-nanochat_d979f5a5"
         },
         {
             "type": "java",

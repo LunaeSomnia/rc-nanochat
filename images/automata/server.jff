@@ -44,30 +44,30 @@
 			<label>PROCESS_ENTERROOM</label>
 		</state>
 		<state id="8" name="q8">
-			<x>662.0</x>
-			<y>585.0</y>
+			<x>660.0</x>
+			<y>623.0</y>
 			<label>CLIENT_IN_ROOM</label>
 		</state>
 		<state id="9" name="q9">
-			<x>947.0</x>
-			<y>584.0</y>
+			<x>965.0</x>
+			<y>622.0</y>
 			<label>PROCESS_ROOMINFO</label>
 		</state>
 		<!--The list of transitions.-->
 		<transition>
+			<from>4</from>
+			<to>3</to>
+			<read>snd(NickDuplicated)</read>
+		</transition>
+		<transition>
 			<from>8</from>
-			<to>9</to>
-			<read>rcv(GetRoomInfo)</read>
-		</transition>
-		<transition>
-			<from>7</from>
 			<to>8</to>
-			<read>snd(EnterRoomOk)</read>
+			<read>rcv(RenameRoom)</read>
 		</transition>
 		<transition>
-			<from>0</from>
-			<to>1</to>
-			<read>snd(reg_sv)</read>
+			<from>3</from>
+			<to>0</to>
+			<read>snd(unreg_sv)</read>
 		</transition>
 		<transition>
 			<from>8</from>
@@ -75,14 +75,24 @@
 			<read>rcv(ExitRoom)</read>
 		</transition>
 		<transition>
-			<from>5</from>
-			<to>6</to>
-			<read>rcv(GetRoomList)</read>
+			<from>6</from>
+			<to>5</to>
+			<read>snd(RoomListInfo)</read>
 		</transition>
 		<transition>
-			<from>3</from>
-			<to>4</to>
-			<read>rcv(RegNick)</read>
+			<from>7</from>
+			<to>5</to>
+			<read>snd(EnterRoomFailed)</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>rcv(not_ok)</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>9</to>
+			<read>rcv(GetRoomInfo)</read>
 		</transition>
 		<transition>
 			<from>8</from>
@@ -95,14 +105,14 @@
 			<read>timeout</read>
 		</transition>
 		<transition>
-			<from>5</from>
-			<to>7</to>
-			<read>rcv(EnterRoom)</read>
+			<from>1</from>
+			<to>3</to>
+			<read>rcv(ok)</read>
 		</transition>
 		<transition>
 			<from>3</from>
-			<to>0</to>
-			<read>snd(unreg_sv)</read>
+			<to>4</to>
+			<read>rcv(RegNick)</read>
 		</transition>
 		<transition>
 			<from>4</from>
@@ -115,14 +125,9 @@
 			<read>snd(ReceiveRoomMsg)</read>
 		</transition>
 		<transition>
-			<from>6</from>
-			<to>5</to>
-			<read>snd(RoomListInfo)</read>
-		</transition>
-		<transition>
-			<from>1</from>
-			<to>3</to>
-			<read>rcv(ok)</read>
+			<from>5</from>
+			<to>7</to>
+			<read>rcv(EnterRoom)</read>
 		</transition>
 		<transition>
 			<from>9</from>
@@ -130,19 +135,19 @@
 			<read>snd(RoomInfo)</read>
 		</transition>
 		<transition>
-			<from>4</from>
-			<to>3</to>
-			<read>snd(NickDuplicated)</read>
+			<from>0</from>
+			<to>1</to>
+			<read>snd(reg_sv)</read>
 		</transition>
 		<transition>
-			<from>1</from>
-			<to>2</to>
-			<read>rcv(not_ok)</read>
+			<from>5</from>
+			<to>6</to>
+			<read>rcv(GetRoomList)</read>
 		</transition>
 		<transition>
 			<from>7</from>
-			<to>5</to>
-			<read>snd(EnterRoomFailed)</read>
+			<to>8</to>
+			<read>snd(EnterRoomOk)</read>
 		</transition>
 	</automaton>
 </structure>

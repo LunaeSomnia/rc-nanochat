@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.time.Instant;
 import java.util.ArrayList;
 
 import messageML.NCControl;
@@ -163,6 +162,16 @@ public class NCServerThread extends Thread {
                     var info = serverManager.getRoomList();
                     NCListaSala packet = (NCListaSala) NCMessage.makeRoomList(NCMessage.OP_ROOMINFO, info);
                     dos.writeUTF(packet.toEncodedString());
+
+                    break;
+
+                case NCMessage.OP_RENAMEROOM:
+
+                    NCUnParametro renameMsg = (NCUnParametro) message;
+                    String newRoomName = renameMsg.getParam();
+                    serverManager.renameRoom(currentRoom, newRoomName);
+                    currentRoom = newRoomName;
+                    roomManager.setRoomName(newRoomName);
 
                     break;
 

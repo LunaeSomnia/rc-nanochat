@@ -28,16 +28,20 @@ public class NCRoomDescription {
     // impresa por pantalla
     public String toPrintableString() {
         StringBuffer sb = new StringBuffer();
-        sb.append("Room Name: " + roomName + "\t Capacity: " + current_capacity + "/" + max_capacity + "\t Members ("
-                + members.size() + ") : ");
-        for (String member : members) {
-            sb.append(member + " ");
+        sb.append(" - " + roomName + " (" + current_capacity + "/" + max_capacity + ") ");
+        if (timeLastMessage != 0)
+            sb.append("Last message: " + Date.from(Instant.ofEpochSecond(timeLastMessage)).toString());
+        else
+            sb.append("No messages yet");
+        if (members.size() != 0) {
+            sb.append("\n   > ");
+            for (String member : members) {
+                if (!members.get(0).equals(member))
+                    sb.append(", ");
+                sb.append(member);
+            }
         }
 
-        if (timeLastMessage != 0)
-            sb.append("\tLast message: " + Date.from(Instant.ofEpochSecond(timeLastMessage)).toString());
-        else
-            sb.append("\tLast message: not yet");
         return sb.toString();
     }
 }

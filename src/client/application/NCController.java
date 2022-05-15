@@ -11,6 +11,7 @@ import directory.connector.DirectoryConnector;
 import messageML.NCDosParametros;
 import server.NCServerManager;
 import server.roomManager.NCRoomDescription;
+import server.roomManager.NCRoomDescriptionNameComparator;
 
 public class NCController {
     // Diferentes estados del cliente de acuerdo con el autómata
@@ -32,6 +33,8 @@ public class NCController {
     private String nickname;
     // Sala de chat en la que se encuentra el usuario (si está en alguna)
     private String room;
+    // Nuevo nombre de la sala en la que se encuentra el usuario (si está en alguna)
+    private String newRoomName;
     // Mensaje enviado o por enviar al chat
     private String chatMessage;
     // Dirección de internet del servidor de NanoChat
@@ -69,6 +72,9 @@ public class NCController {
                 break;
             case NCCommands.COM_SEND:
                 chatMessage = args[0];
+                break;
+            case NCCommands.COM_RENAME:
+                newRoomName = args[0];
                 break;
             default:
         }
@@ -140,6 +146,7 @@ public class NCController {
             //// TO!DO Una vez recibidas iteramos sobre la lista para imprimir información
             //// de
             //// cada sala
+            rooms.sort(new NCRoomDescriptionNameComparator());
             for (NCRoomDescription roomDescription : rooms) {
                 System.out.println(roomDescription.toPrintableString());
             }
@@ -191,6 +198,10 @@ public class NCController {
                 // la obtendrá
                 getAndShowInfo();
                 break;
+            case NCCommands.COM_RENAME:
+                // El usuario ha solicitado cambiar el nombre de la sala
+                renameRoom();
+                break;
             case NCCommands.COM_SEND:
                 // El usuario quiere enviar un mensaje al chat de la sala
                 sendChatMessage();
@@ -214,6 +225,17 @@ public class NCController {
             NCRoomDescription roomDesc = ncConnector.getRoomInfo(room);
             //// TO!DO Mostramos por pantalla la información
             System.out.println(roomDesc.toPrintableString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para solicitar el renombre de la sala en la que se encuentra.
+    private void renameRoom() {
+        try {
+            ncConnector.renameRoom(newRoomName);
+            room = newRoomName;
+            System.out.println(" * Room renamed to '" + newRoomName + "'");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -255,7 +277,7 @@ public class NCController {
         }
     }
 
-    // MNétodo para leer un comando de la sala
+    // Método para leer un comando de la sala
     public void readRoomCommandFromShell() {
         // Pedimos un nuevo comando de sala al shell (pasando el conector por si nos
         // llega un mensaje entrante)

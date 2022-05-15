@@ -3,66 +3,101 @@
 	<automaton>
 		<!--The list of states.-->
 		<state id="0" name="q0">
-			<x>116.0</x>
-			<y>280.0</y>
+			<x>68.0</x>
+			<y>248.0</y>
 			<label>PRE_QUERY</label>
 			<initial/>
 		</state>
 		<state id="1" name="q1">
-			<x>295.0</x>
-			<y>446.0</y>
+			<x>234.0</x>
+			<y>421.0</y>
 			<label>WAITING</label>
 		</state>
 		<state id="2" name="q2">
-			<x>469.0</x>
-			<y>579.0</y>
+			<x>421.0</x>
+			<y>420.0</y>
 			<label>TIMEOUT</label>
 		</state>
 		<state id="3" name="q3">
-			<x>464.0</x>
-			<y>280.0</y>
+			<x>349.0</x>
+			<y>250.0</y>
 			<label>PRE_CONNECTION</label>
 		</state>
 		<state id="4" name="q4">
-			<x>1219.0</x>
-			<y>721.0</y>
+			<x>1120.0</x>
+			<y>689.0</y>
 			<label>AWAIT_ROOMINFO</label>
 		</state>
 		<state id="5" name="q5">
-			<x>625.0</x>
-			<y>281.0</y>
+			<x>530.0</x>
+			<y>250.0</y>
 			<label>CONNECTION_ESTABLISHED</label>
 		</state>
 		<state id="6" name="q6">
-			<x>913.0</x>
-			<y>274.0</y>
+			<x>830.0</x>
+			<y>251.0</y>
 			<label>REGISTERING</label>
 		</state>
 		<state id="7" name="q7">
-			<x>919.0</x>
-			<y>456.0</y>
+			<x>832.0</x>
+			<y>416.0</y>
 			<label>REGISTERED</label>
 		</state>
 		<state id="8" name="q8">
-			<x>1184.0</x>
-			<y>461.0</y>
+			<x>1088.0</x>
+			<y>419.0</y>
 			<label>AWAIT_ENTER_ROOM</label>
 		</state>
 		<state id="9" name="q9">
-			<x>662.0</x>
-			<y>455.0</y>
+			<x>560.0</x>
+			<y>415.0</y>
 			<label>AWAIT_ROOM_LIST</label>
 		</state>
 		<state id="10" name="q10">
-			<x>918.0</x>
-			<y>720.0</y>
+			<x>836.0</x>
+			<y>692.0</y>
 			<label>IN_ROOM</label>
 		</state>
 		<!--The list of transitions.-->
 		<transition>
+			<from>10</from>
+			<to>4</to>
+			<read>snd(GetRoomInfo)</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>10</to>
+			<read>snd(SendRoomMsg)</read>
+		</transition>
+		<transition>
 			<from>8</from>
 			<to>10</to>
 			<read>rcv(EnterRoomOk)</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>timeout</read>
+		</transition>
+		<transition>
+			<from>5</from>
+			<to>6</to>
+			<read>snd(RegNick)</read>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>1</to>
+			<read>send(qry_sv)</read>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>5</to>
+			<read>ServerConnected</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>10</to>
+			<read>snd(RenameRoom)</read>
 		</transition>
 		<transition>
 			<from>7</from>
@@ -70,14 +105,9 @@
 			<read>snd(GetRoomList)</read>
 		</transition>
 		<transition>
-			<from>4</from>
-			<to>10</to>
-			<read>rcv(RoomInfo)</read>
-		</transition>
-		<transition>
 			<from>10</from>
-			<to>10</to>
-			<read>snd(SendRoomMsg)</read>
+			<to>7</to>
+			<read>snd(ExitRoom)</read>
 		</transition>
 		<transition>
 			<from>7</from>
@@ -90,44 +120,9 @@
 			<read>ServerUnavailable</read>
 		</transition>
 		<transition>
-			<from>0</from>
-			<to>1</to>
-			<read>snd(qry_sv)</read>
-		</transition>
-		<transition>
 			<from>1</from>
-			<to>0</to>
-			<read>rcv(qry_sv_info_empty)</read>
-		</transition>
-		<transition>
-			<from>5</from>
-			<to>6</to>
-			<read>snd(RegNick)</read>
-		</transition>
-		<transition>
-			<from>6</from>
-			<to>7</to>
-			<read>rcv(NickOk)</read>
-		</transition>
-		<transition>
-			<from>8</from>
-			<to>7</to>
-			<read>rcv(EnterRoomFailed)</read>
-		</transition>
-		<transition>
-			<from>1</from>
-			<to>2</to>
-			<read>timeout</read>
-		</transition>
-		<transition>
-			<from>10</from>
-			<to>4</to>
-			<read>snd(GetRoomInfo)</read>
-		</transition>
-		<transition>
-			<from>10</from>
-			<to>10</to>
-			<read>rcv(ReceiveRoomMsg)</read>
+			<to>3</to>
+			<read>rcv(qry_sv_info)</read>
 		</transition>
 		<transition>
 			<from>6</from>
@@ -135,29 +130,39 @@
 			<read>rcv(NickDuplicated)</read>
 		</transition>
 		<transition>
-			<from>1</from>
-			<to>3</to>
-			<read>rcv(qry_sv_info)</read>
-		</transition>
-		<transition>
-			<from>3</from>
-			<to>5</to>
-			<read>ServerConnected</read>
-		</transition>
-		<transition>
-			<from>10</from>
-			<to>7</to>
-			<read>snd(ExitRoom)</read>
-		</transition>
-		<transition>
 			<from>9</from>
 			<to>7</to>
 			<read>rcv(RoomListInfo)</read>
 		</transition>
 		<transition>
-			<from>2</from>
+			<from>0</from>
 			<to>1</to>
-			<read>send(qry_sv)</read>
+			<read>snd(qry_sv)</read>
+		</transition>
+		<transition>
+			<from>4</from>
+			<to>10</to>
+			<read>rcv(RoomInfo)</read>
+		</transition>
+		<transition>
+			<from>10</from>
+			<to>10</to>
+			<read>rcv(ReceiveRoomMsg)</read>
+		</transition>
+		<transition>
+			<from>8</from>
+			<to>7</to>
+			<read>rcv(EnterRoomFailed)</read>
+		</transition>
+		<transition>
+			<from>6</from>
+			<to>7</to>
+			<read>rcv(NickOk)</read>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>0</to>
+			<read>rcv(qry_sv_info_empty)</read>
 		</transition>
 	</automaton>
 </structure>

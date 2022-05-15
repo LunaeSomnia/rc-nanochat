@@ -30,6 +30,7 @@ public abstract class NCMessage {
     public static final byte OP_ROOMINFO = 10;
     public static final byte OP_SENDROOMMSG = 11;
     public static final byte OP_RECEIVEROOMMSG = 12;
+    public static final byte OP_RENAMEROOM = 13;
 
     public static final char DELIMITER = ':'; // Define el delimitador
     public static final char END_LINE = '\n'; // Define el carácter de fin de línea
@@ -55,7 +56,8 @@ public abstract class NCMessage {
             OP_GETROOMINFO,
             OP_ROOMINFO,
             OP_SENDROOMMSG,
-            OP_RECEIVEROOMMSG
+            OP_RECEIVEROOMMSG,
+            OP_RENAMEROOM
     };
 
     /**
@@ -74,7 +76,8 @@ public abstract class NCMessage {
             "GetRoomInfo",
             "RoomInfo",
             "SendRoomMsg",
-            "ReceiveRoomMsg"
+            "ReceiveRoomMsg",
+            "RenameRoom"
     };
 
     private static Map<String, Byte> _operation_to_opcode;
@@ -184,6 +187,9 @@ public abstract class NCMessage {
             }
             case OP_RECEIVEROOMMSG: {
                 return NCDosParametros.readFromString(code, message);
+            }
+            case OP_RENAMEROOM: {
+                return NCUnParametro.readFromString(code, message);
             }
             default:
                 System.err.println("Unknown message type received:" + code);

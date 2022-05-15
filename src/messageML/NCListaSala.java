@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import server.roomManager.NCRoomDescription;
-import server.roomManager.NCRoomManager;
 
 /*
 <message>

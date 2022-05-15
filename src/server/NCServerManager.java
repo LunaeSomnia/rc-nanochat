@@ -116,6 +116,11 @@ public class NCServerManager {
 
     }
 
+    public synchronized void renameRoom(String oldName, String newName) {
+        NCRoomManager room = rooms.remove(oldName);
+        rooms.put(newName, room);
+    }
+
     // Un usuario deja la sala en la que estaba
     public synchronized void leaveRoom(String u, String room) {
         //// TO!DO Verificamos si la sala existe

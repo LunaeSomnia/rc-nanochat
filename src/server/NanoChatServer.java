@@ -7,7 +7,6 @@ import java.net.Socket;
 
 import directory.connector.DirectoryConnector;
 import server.roomManager.NCRoom;
-import server.roomManager.NCRoomManager;
 
 public class NanoChatServer implements Runnable {
 
